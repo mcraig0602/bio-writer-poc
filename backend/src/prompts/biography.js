@@ -1,16 +1,24 @@
 /**
  * Prompt template for generating a biography from raw input
- * @param {string} rawInput - The raw text to transform into a biography
+ * Keep persona/system separate from data where possible.
  * @returns {string} The formatted prompt
  */
-export function generateBiographyPrompt(rawInput) {
-  return `Transform the following information into a polished, professional biography (aim for 200-400 words). Make it engaging, well-structured, and highlight key strengths and achievements:
+import { assemblePrompt } from './promptBuilder.js';
 
-${rawInput}
-
-IMPORTANT:
-- Return ONLY the biography text without any additional commentary
-- Keep it between 200-400 words
-- Make it professional and impactful
-- Focus on achievements and expertise`;
+/**
+ * @param {object} params
+ * @param {string} params.rawInput
+ * @param {string} [params.system]
+ * @param {boolean} [params.includeSystemInPrompt]
+ */
+export function generateBiographyPrompt({ rawInput, system, includeSystemInPrompt = true }) {
+  return assemblePrompt({
+    system,
+    includeSystemInPrompt,
+    task: 'Write a polished, professional biography (200–400 words) using only the provided input. Emphasize achievements and expertise.',
+    dataSections: [
+      { title: 'RAW_INPUT', content: rawInput }
+    ],
+    outputRules: 'Return ONLY the biography text (plain text). No headings, no commentary.'
+  });
 }

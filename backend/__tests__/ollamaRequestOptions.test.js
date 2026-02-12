@@ -12,6 +12,8 @@ describe('OllamaService request options mapping', () => {
     delete process.env.AI_MAX_TOKENS;
     delete process.env.AI_TIMEOUT_MS;
     delete process.env.AI_MAX_RETRIES;
+    delete process.env.AI_USE_OLLAMA_SYSTEM;
+    delete process.env.AI_USE_OLLAMA_JSON_FORMAT;
 
     delete process.env.OLLAMA_URL;
     delete process.env.OLLAMA_MODEL;
@@ -92,5 +94,65 @@ describe('OllamaService request options mapping', () => {
       },
     });
     expect(config).toEqual({ timeout: 5000 });
+  });
+
+  test('AI_USE_OLLAMA_SYSTEM sends system field (opt-in)', async () => {
+    process.env.AI_BASE_URL = 'http://ai.local:11434';
+    process.env.AI_MODEL = 'llama3.1';
+    process.env.AI_USE_OLLAMA_SYSTEM = 'true';
+
+    const post = jest.fn().mockResolvedValue({
+      data: {
+        response: 'Ok',
+      },
+    });
+
+    jest.unstable_mockModule('axios', () => ({
+      default: { post },
+    }));
+
+    const { default: ollamaService } = await import('../src/services/ollama.js');
+
+    const result = await ollamaService.generateBiography('raw input');
+    expect(result).toBe('Ok');
+
+    const [url, body] = post.mock.calls[0];
+    expect(url).toBe('http://ai.local:11434/api/generate');
+    expect(body).toEqual({
+      model: 'llama3.1',
+      prompt: expect.any(String),
+      system: expect.any(String),
+      stream: false,
+    });
+  });
+
+  test('AI_USE_OLLAMA_JSON_FORMAT sends format=json for keyword extraction (opt-in)', async () => {
+    process.env.AI_BASE_URL = 'http://ai.local:11434';
+    process.env.AI_MODEL = 'llama3.1';
+    process.env.AI_USE_OLLAMA_JSON_FORMAT = 'true';
+
+    const post = jest.fn().mockResolvedValue({
+      data: {
+        response: '{"keywords":["Python","Machine Learning"]}',
+      },
+    });
+
+    jest.unstable_mockModule('axios', () => ({
+      default: { post },
+    }));
+
+    const { default: ollamaService } = await import('../src/services/ollama.js');
+
+    const result = await ollamaService.extractKeywords('some bio');
+    expect(result).toEqual(['Python', 'Machine Learning']);
+
+    const [url, body] = post.mock.calls[0];
+    expect(url).toBe('http://ai.local:11434/api/generate');
+    expect(body).toEqual({
+      model: 'llama3.1',
+      prompt: expect.any(String),
+      stream: false,
+      format: 'json',
+    });
   });
 });

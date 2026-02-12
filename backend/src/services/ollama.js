@@ -8,8 +8,10 @@ import { extractKeywordsPrompt } from '../prompts/keywords.js';
 import { refineBiographyPrompt } from '../prompts/refinement.js';
 import { proposeFieldUpdatesPrompt } from '../prompts/fieldUpdates.js';
 import { parseKeywords, buildConversationContext } from '../utils/parsers.js';
+import { parseJsonFromText } from '../utils/json.js';
 import { isValidBiographyText } from '../utils/validators.js';
 import { normalizeMentorSummary } from '../utils/mentorSummary.js';
+import { SYSTEM_PERSONAS } from '../prompts/personas.js';
 
 const OLLAMA_GENERATE_ENDPOINT = '/api/generate';
 
@@ -21,12 +23,20 @@ function joinUrl(baseUrl, path) {
   return `${trimmedBase}${trimmedPath}`;
 }
 
-function buildOllamaGenerateBody({ model, prompt, temperature, maxTokens }) {
+function buildOllamaGenerateBody({ model, prompt, system, format, temperature, maxTokens }) {
   const body = {
     model,
     prompt,
     stream: false,
   };
+
+  if (system !== undefined) {
+    body.system = system;
+  }
+
+  if (format !== undefined) {
+    body.format = format;
+  }
 
   const options = {};
   if (temperature !== undefined) {
@@ -83,6 +93,10 @@ class OllamaService {
     const aiConfig = getAIConfig();
     const url = joinUrl(aiConfig.baseUrl, OLLAMA_GENERATE_ENDPOINT);
 
+    const useSystem = Boolean(aiConfig.features?.useOllamaSystem);
+    const system = SYSTEM_PERSONAS.biographyWriter;
+    const includeSystemInPrompt = !useSystem;
+
     const span = tracingService.startSpan('ollama.generateBiography', {
       inputLength: rawInput.length,
       provider: aiConfig.provider,
@@ -96,7 +110,11 @@ class OllamaService {
     });
 
     try {
-      const prompt = generateBiographyPrompt(rawInput);
+      const prompt = generateBiographyPrompt({
+        rawInput,
+        system,
+        includeSystemInPrompt
+      });
       
       logger.debug('Generating biography with LLM', {
         model: aiConfig.model,
@@ -108,6 +126,7 @@ class OllamaService {
       const body = buildOllamaGenerateBody({
         model: aiConfig.model,
         prompt,
+        system: useSystem ? system : undefined,
         temperature: aiConfig.generation.temperature,
         maxTokens: aiConfig.generation.maxTokens
       });
@@ -153,6 +172,10 @@ class OllamaService {
     const aiConfig = getAIConfig();
     const url = joinUrl(aiConfig.baseUrl, OLLAMA_GENERATE_ENDPOINT);
 
+    const useSystem = Boolean(aiConfig.features?.useOllamaSystem);
+    const system = SYSTEM_PERSONAS.mentorSummaryWriter;
+    const includeSystemInPrompt = !useSystem;
+
     const span = tracingService.startSpan('ollama.generateMentorSummary', {
       inputLength: rawInput.length,
       provider: aiConfig.provider,
@@ -166,7 +189,11 @@ class OllamaService {
     });
 
     try {
-      const prompt = generateMentorSummaryPrompt(rawInput);
+      const prompt = generateMentorSummaryPrompt({
+        rawInput,
+        system,
+        includeSystemInPrompt
+      });
 
       logger.debug('Generating mentor summary with LLM', {
         model: aiConfig.model,
@@ -178,6 +205,7 @@ class OllamaService {
       const body = buildOllamaGenerateBody({
         model: aiConfig.model,
         prompt,
+        system: useSystem ? system : undefined,
         temperature: aiConfig.generation.temperature,
         maxTokens: aiConfig.generation.maxTokens
       });
@@ -223,6 +251,11 @@ class OllamaService {
     const aiConfig = getAIConfig();
     const url = joinUrl(aiConfig.baseUrl, OLLAMA_GENERATE_ENDPOINT);
 
+    const useSystem = Boolean(aiConfig.features?.useOllamaSystem);
+    const useJsonFormat = Boolean(aiConfig.features?.useOllamaJsonFormat);
+    const system = SYSTEM_PERSONAS.keywordExtractor;
+    const includeSystemInPrompt = !useSystem;
+
     const span = tracingService.startSpan('ollama.extractKeywords', {
       inputLength: text.length,
       provider: aiConfig.provider,
@@ -237,7 +270,11 @@ class OllamaService {
 
     try {
       // TODO: Consider using Hugging Face Transformers library for more advanced keyword extraction
-      const prompt = extractKeywordsPrompt(text);
+      const prompt = extractKeywordsPrompt({
+        text,
+        system,
+        includeSystemInPrompt
+      });
       
       logger.debug('Extracting keywords with LLM', {
         model: aiConfig.model,
@@ -248,6 +285,8 @@ class OllamaService {
       const body = buildOllamaGenerateBody({
         model: aiConfig.model,
         prompt,
+        system: useSystem ? system : undefined,
+        format: useJsonFormat ? 'json' : undefined,
         temperature: aiConfig.generation.temperature,
         maxTokens: aiConfig.generation.maxTokens
       });
@@ -264,8 +303,20 @@ class OllamaService {
         rawResponse: rawResponse,
         responseLength: rawResponse.length
       });
-      
-      const keywords = parseKeywords(rawResponse);
+
+      let keywords = null;
+      const parsed = parseJsonFromText(rawResponse);
+      if (parsed && typeof parsed === 'object' && Array.isArray(parsed.keywords)) {
+        const cleaned = parsed.keywords
+          .filter((x) => typeof x === 'string')
+          .map((x) => x.trim())
+          .filter(Boolean);
+        keywords = [...new Set(cleaned)].slice(0, 20);
+      }
+
+      if (!keywords) {
+        keywords = parseKeywords(rawResponse);
+      }
       
       logger.info('Keywords extracted successfully', {
         model: aiConfig.model,
@@ -298,6 +349,11 @@ class OllamaService {
     const aiConfig = getAIConfig();
     const url = joinUrl(aiConfig.baseUrl, OLLAMA_GENERATE_ENDPOINT);
 
+    const useSystem = Boolean(aiConfig.features?.useOllamaSystem);
+    const useJsonFormat = Boolean(aiConfig.features?.useOllamaJsonFormat);
+    const system = SYSTEM_PERSONAS.fieldUpdater;
+    const includeSystemInPrompt = !useSystem;
+
     const span = tracingService.startSpan('ollama.proposeBiographyFieldUpdates', {
       provider: aiConfig.provider,
       baseUrl: aiConfig.baseUrl,
@@ -313,7 +369,9 @@ class OllamaService {
     try {
       const prompt = proposeFieldUpdatesPrompt({
         currentFields,
-        userMessage
+        userMessage,
+        system,
+        includeSystemInPrompt
       });
 
       logger.debug('Proposing structured field updates with LLM', {
@@ -325,6 +383,8 @@ class OllamaService {
       const body = buildOllamaGenerateBody({
         model: aiConfig.model,
         prompt,
+        system: useSystem ? system : undefined,
+        format: useJsonFormat ? 'json' : undefined,
         temperature: 0,
         maxTokens: 400
       });
@@ -359,6 +419,10 @@ class OllamaService {
     const aiConfig = getAIConfig();
     const url = joinUrl(aiConfig.baseUrl, OLLAMA_GENERATE_ENDPOINT);
 
+    const useSystem = Boolean(aiConfig.features?.useOllamaSystem);
+    const system = SYSTEM_PERSONAS.biographyRefiner;
+    const includeSystemInPrompt = !useSystem;
+
     const span = tracingService.startSpan('ollama.refineBiography', {
       biographyLength: currentBiography.length,
       userMessageLength: userMessage.length,
@@ -376,7 +440,13 @@ class OllamaService {
     try {
       const conversationContext = buildConversationContext(conversationHistory);
 
-      const prompt = refineBiographyPrompt(currentBiography, userMessage, conversationContext);
+      const prompt = refineBiographyPrompt({
+        currentBiography,
+        userMessage,
+        conversationContext,
+        system,
+        includeSystemInPrompt
+      });
       
       logger.debug('Refining biography with LLM', {
         model: aiConfig.model,
@@ -390,6 +460,7 @@ class OllamaService {
       const body = buildOllamaGenerateBody({
         model: aiConfig.model,
         prompt,
+        system: useSystem ? system : undefined,
         temperature: aiConfig.generation.temperature,
         maxTokens: aiConfig.generation.maxTokens
       });

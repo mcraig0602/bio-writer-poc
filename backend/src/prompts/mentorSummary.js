@@ -1,26 +1,27 @@
 /**
  * Prompt template for generating a mentoring-focused summary from structured context
- * @param {string} rawInput - The structured context used to generate the biography
  * @returns {string} The formatted prompt
  */
-export function generateMentorSummaryPrompt(rawInput) {
-  return `You are helping draft a mentor-oriented summary of a professional profile.
+import { assemblePrompt } from './promptBuilder.js';
 
-Given the profile context below, write a concise mentor summary that helps someone understand how this person can mentor others.
-
-CONTEXT:
-${rawInput}
-
-OUTPUT FORMAT (plain text only):
-- Start with a short intro paragraph (2-4 sentences).
-- Then include 3-6 bullet points. Each bullet must start with a SINGLE "- ".
-  - Do NOT start bullets with "- -" or "--".
-
-CONTENT GUIDELINES:
-- Focus on coaching strengths, areas of expertise, mentoring style, and what a mentee can expect.
-- Keep it professional and specific to the context.
-- Do not invent personal details that are not supported by the context.
-
-IMPORTANT:
-- Return ONLY the mentor summary text. No headings, no extra commentary.`;
+/**
+ * @param {object} params
+ * @param {string} params.rawInput
+ * @param {string} [params.system]
+ * @param {boolean} [params.includeSystemInPrompt]
+ */
+export function generateMentorSummaryPrompt({ rawInput, system, includeSystemInPrompt = true }) {
+  return assemblePrompt({
+    system,
+    includeSystemInPrompt,
+    task: 'Write a concise mentor-oriented summary of the profile based only on the provided context.',
+    dataSections: [
+      { title: 'PROFILE_CONTEXT', content: rawInput }
+    ],
+    outputRules: [
+      'Return ONLY plain text.',
+      'Format: 2–4 sentence intro paragraph, then 3–6 bullets each starting with a single "- ".',
+      'Do not invent details not supported by the context.'
+    ].join('\n')
+  });
 }

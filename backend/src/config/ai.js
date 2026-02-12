@@ -60,6 +60,17 @@ function parseOptionalUrl(name, value) {
   }
 }
 
+function parseOptionalBoolean(name, value) {
+  const str = optionalString(value);
+  if (str === undefined) return undefined;
+
+  const normalized = str.toLowerCase();
+  if (['true', '1', 'yes', 'y', 'on'].includes(normalized)) return true;
+  if (['false', '0', 'no', 'n', 'off'].includes(normalized)) return false;
+
+  throw new Error(`${name} must be a boolean (true/false)`);
+}
+
 function resolveBaseUrl() {
   // OpenAI-style config takes precedence
   const aiBaseUrl = parseOptionalUrl('AI_BASE_URL', process.env.AI_BASE_URL);
@@ -114,6 +125,12 @@ export function getAIConfig({ reload = false } = {}) {
     { min: 1, max: 10 }
   );
 
+  const useOllamaSystem = parseOptionalBoolean('AI_USE_OLLAMA_SYSTEM', process.env.AI_USE_OLLAMA_SYSTEM);
+  const useOllamaJsonFormat = parseOptionalBoolean(
+    'AI_USE_OLLAMA_JSON_FORMAT',
+    process.env.AI_USE_OLLAMA_JSON_FORMAT
+  );
+
   if (strict) {
     // Temperature/max tokens etc are already validated above.
     // Enforce that API key is not accidentally set to an empty value.
@@ -127,6 +144,10 @@ export function getAIConfig({ reload = false } = {}) {
     baseUrl,
     model,
     apiKey,
+    features: {
+      useOllamaSystem: useOllamaSystem ?? false,
+      useOllamaJsonFormat: useOllamaJsonFormat ?? false,
+    },
     generation: {
       temperature,
       maxTokens,
