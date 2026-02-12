@@ -11,6 +11,8 @@ The tracing system automatically captures detailed information about every LLM o
 - Metadata (provider, base URL, endpoint, model name, token usage, etc.)
 - Error details when operations fail
 
+For the prompt catalog and LLM/prompt architecture diagram, see [LLM_PROMPTS.md](docs/LLM_PROMPTS.md).
+
 ## Architecture
 
 ### Components

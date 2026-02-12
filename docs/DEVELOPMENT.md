@@ -153,11 +153,37 @@ The application uses Ollama's REST API at `http://localhost:11434`:
 
 2. **Keyword Extraction** (`/api/generate`):
    - Extracts 5-10 relevant keywords
-   - Returns as comma-separated list
+   - Prompts request JSON output; parser remains backward-compatible with comma-separated output
 
 3. **Refinement** (`/api/generate`):
    - Includes conversation context
    - Applies user's refinement instruction
+
+### System prompts, data separation, and structured outputs
+
+LLM prompts are assembled from consistent blocks to keep "persona" (system) and "data" separate:
+- **SYSTEM**: a short persona/role description (sent via Ollama request-body `system` when enabled)
+- **TASK**: what to do
+- **DATA**: the provided inputs/context
+- **OUTPUT**: output constraints (plain text vs JSON)
+
+See backend prompt utilities:
+- Prompt assembly: `backend/src/prompts/promptBuilder.js`
+- Personas: `backend/src/prompts/personas.js`
+
+### Optional Ollama features (env flags)
+
+These are opt-in to preserve compatibility with older Ollama versions:
+
+```env
+# When true, send persona via the Ollama request-body `system` field.
+AI_USE_OLLAMA_SYSTEM=true
+
+# When true, send `format: "json"` for JSON-only operations (keywords + structured field updates).
+AI_USE_OLLAMA_JSON_FORMAT=true
+```
+
+Defaults are `false` if unset.
 
 ### Changing Models
 
@@ -174,12 +200,9 @@ Then restart the backend.
 
 ### Prompt Engineering
 
-Prompts are in `backend/src/services/ollama.js`:
-- `generateBiography()` - Main biography generation
-- `extractKeywords()` - Keyword extraction
-- `refineBiography()` - Conversational refinement
+Prompt templates live in `backend/src/prompts/` and are called by the LLM service in `backend/src/services/ollama.js`.
 
-Feel free to modify these for better results!
+See [LLM_PROMPTS.md](./LLM_PROMPTS.md) for a full prompt catalog and an architecture diagram.
 
 ## Database
 

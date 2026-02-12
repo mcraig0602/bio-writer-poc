@@ -1,0 +1,69 @@
+flowchart TD
+  UI[Frontend UI] -->|HTTP| API[Express API]
+
+  API --> BIO[Biography routes\nbackend/src/routes/biography.js]
+  API --> CHAT[Chat routes\nbackend/src/routes/chat.js]
+
+  BIO -->|generate / edit / history| DB1[(MongoDB\nBiography)]
+  CHAT -->|messages| DB2[(MongoDB\nChatMessage)]
+
+  BIO -->|calls| OLL[OllamaService\nbackend/src/services/ollama.js]
+  CHAT -->|calls| OLL
+
+  subgraph Prompts[Prompt templates\nbackend/src/prompts/*]
+    PB[assemblePrompt\nbackend/src/prompts/promptBuilder.js]
+    PER[SYSTEM_PERSONAS\nbackend/src/prompts/personas.js]
+
+    P_BIO[generateBiographyPrompt\nbackend/src/prompts/biography.js]
+    P_REF[refineBiographyPrompt\nbackend/src/prompts/refinement.js]
+    P_KEY[extractKeywordsPrompt\nbackend/src/prompts/keywords.js]
+    P_FLD[proposeFieldUpdatesPrompt\nbackend/src/prompts/fieldUpdates.js]
+    P_MEN[generateMentorSummaryPrompt\nbackend/src/prompts/mentorSummary.js]
+
+    PER --> P_BIO
+    PER --> P_REF
+    PER --> P_KEY
+    PER --> P_FLD
+    PER --> P_MEN
+
+    P_BIO --> PB
+    P_REF --> PB
+    P_KEY --> PB
+    P_FLD --> PB
+    P_MEN --> PB
+  end
+
+  OLL -->|build prompt| Prompts
+
+  subgraph Config[AI configuration\nbackend/src/config/ai.js]
+    ENV[AI_* / OLLAMA_* env vars]
+    CFG[getAIConfig]
+    ENV --> CFG
+  end
+
+  OLL --> CFG
+
+  subgraph Ollama[Ollama REST API]
+    GEN[POST /api/generate\nstream:false]
+  end
+
+  OLL -->|axios + retry| GEN
+  GEN -->|response.data.response| OLL
+
+  subgraph Parsing[Output parsing + validation]
+    JSONP[parseJsonFromText\nbackend/src/utils/json.js]
+    KW[parseKeywords\nbackend/src/utils/parsers.js]
+    CTX[buildConversationContext\nbackend/src/utils/parsers.js]
+    VAL[isValidBiographyText\nbackend/src/utils/validators.js]
+    NORM[normalizeMentorSummary\nbackend/src/utils/mentorSummary.js]
+  end
+
+  OLL --> Parsing
+
+  subgraph Observability[Observability]
+    TR[tracingService spans\nbackend/src/services/tracing.js]
+    LOG[logger\nbackend/src/config/logging.js]
+  end
+
+  OLL --> TR
+  OLL --> LOG
