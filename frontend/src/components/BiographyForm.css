@@ -1,0 +1,25 @@
+/* BiographyForm - Minimal custom styles, mostly uses Bootstrap */
+
+.biography-form {
+  padding: 2rem 0;
+}
+
+/* Remove list bullets and add padding for empty lists */
+.list-group:empty {
+  min-height: 2rem;
+}
+
+/* Dark mode adjustments for Bootstrap components */
+[data-bs-theme="dark"] .form-control,
+[data-bs-theme="dark"] .form-select {
+  background-color: var(--color-card-bg);
+  color: var(--color-text-primary);
+  border-color: var(--color-border);
+}
+
+[data-bs-theme="dark"] .form-control:focus,
+[data-bs-theme="dark"] .form-select:focus {
+  background-color: var(--color-card-bg);
+  color: var(--color-text-primary);
+  border-color: var(--color-primary);
+}

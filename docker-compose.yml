@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:7
+    container_name: biography-mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - biography-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: biography-backend
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - MONGODB_URI=mongodb://mongodb:27017/biography-poc
+      - OLLAMA_URL=http://host.docker.internal:11434
+      - OLLAMA_MODEL=llama3.1
+    depends_on:
+      - mongodb
+    networks:
+      - biography-network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: biography-frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    networks:
+      - biography-network
+    restart: unless-stopped
+
+volumes:
+  mongodb_data:
+
+networks:
+  biography-network:
+    driver: bridge

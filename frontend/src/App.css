@@ -1,0 +1,522 @@
+/* CSS Variables - Light Theme (Default) */
+:root {
+  /* Primary Colors */
+  --color-primary: #2563eb;
+  --color-primary-dark: #1e40af;
+  --color-primary-light: #3b82f6;
+  --color-gradient-start: #2563eb;
+  --color-gradient-end: #1e40af;
+  
+  /* Background Colors */
+  --color-bg: #f5f5f5;
+  --color-bg-secondary: #ffffff;
+  --color-card-bg: #ffffff;
+  --color-card-bg-alt: #f9f9f9;
+  --color-chat-user: #f0f0f0;
+  --color-chat-assistant: #e8f0fe;
+  --color-history-bg: #f9f9f9;
+  --color-tag-mini-bg: #e9ecef;
+  --color-hover-bg: #f8f9ff;
+  
+  /* Text Colors */
+  --color-text-primary: #333333;
+  --color-text-secondary: #666666;
+  --color-text-tertiary: #999999;
+  --color-text-muted: #555555;
+  --color-text-tag: #495057;
+  --color-text-light: #ffffff;
+  
+  /* Border Colors */
+  --color-border: #dddddd;
+  --color-border-light: #eeeeee;
+  --color-border-focus: var(--color-primary);
+  
+  /* Semantic Colors */
+  --color-error-bg: #fee;
+  --color-error-text: #c33;
+  --color-error-border: #fcc;
+  --color-danger: #dc3545;
+  --color-danger-hover: #c82333;
+  --color-secondary: #6c757d;
+  --color-secondary-hover: #5a6268;
+  
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.2);
+  --shadow-primary: 0 2px 6px rgba(37, 99, 235, 0.2);
+  
+  /* Opacity Values */
+  --opacity-disabled: 0.6;
+  --opacity-hover: 0.9;
+}
+
+/* Dark Theme */
+[data-theme="dark"] {
+  /* Primary Colors */
+  --color-primary: #3b82f6;
+  --color-primary-dark: #2563eb;
+  --color-primary-light: #60a5fa;
+  --color-gradient-start: #3b82f6;
+  --color-gradient-end: #2563eb;
+  
+  /* Background Colors */
+  --color-bg: #1a1a1a;
+  --color-bg-secondary: #2a2a2a;
+  --color-card-bg: #2a2a2a;
+  --color-card-bg-alt: #333333;
+  --color-chat-user: #333333;
+  --color-chat-assistant: #1e3a5f;
+  --color-history-bg: #333333;
+  --color-tag-mini-bg: #404040;
+  --color-hover-bg: #1e2a3f;
+  
+  /* Text Colors */
+  --color-text-primary: #f5f5f5;
+  --color-text-secondary: #d0d0d0;
+  --color-text-tertiary: #a0a0a0;
+  --color-text-muted: #e0e0e0;
+  --color-text-tag: #e5e5e5;
+  --color-text-light: #ffffff;
+  
+  /* Border Colors */
+  --color-border: #404040;
+  --color-border-light: #353535;
+  --color-border-focus: var(--color-primary);
+  
+  /* Semantic Colors */
+  --color-error-bg: #4a1f1f;
+  --color-error-text: #ff6b6b;
+  --color-error-border: #6a2c2c;
+  --color-danger: #ef4444;
+  --color-danger-hover: #dc2626;
+  --color-secondary: #64748b;
+  --color-secondary-hover: #475569;
+  
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.5);
+  --shadow-primary: 0 2px 6px rgba(59, 130, 246, 0.3);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--color-bg);
+  color: var(--color-text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+header {
+  background: linear-gradient(135deg, var(--color-gradient-start) 0%, var(--color-gradient-end) 100%);
+  color: var(--color-text-light);
+  padding: 2rem;
+  text-align: center;
+  box-shadow: var(--shadow-md);
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+header h1 {
+  font-size: 2rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.app-container {
+  padding: 2rem;
+  max-width: 1600px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.sidebar {
+  flex: 0 0 300px;
+  max-height: calc(100vh - 8rem);
+  overflow-y: auto;
+}
+
+.left-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  min-width: 0;
+}
+
+.right-panel {
+  flex: 0 0 400px;
+  max-width: 500px;
+}
+
+/* Input form and display components now use Bootstrap cards - minimal custom styles */
+.input-form,
+.biography-display,
+.chat-panel,
+.history-log {
+  background: var(--color-card-bg);
+  transition: background-color 0.3s ease;
+}
+
+.input-form textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid var(--color-border);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 1rem;
+  resize: vertical;
+  margin-bottom: 1rem;
+  background: var(--color-card-bg);
+  color: var(--color-text-primary);
+  transition: border-color 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+}
+
+.input-form textarea:focus,
+.biography-display textarea:focus {
+  outline: none;
+  border-color: var(--color-border-focus);
+}
+
+/* Buttons intentionally left unstyled: prefer Bootstrap button classes */
+
+/* Opt-in gradient button styling (use with Bootstrap: class="btn btn-gradient") */
+.btn-gradient {
+  background: linear-gradient(135deg, var(--color-gradient-start) 0%, var(--color-gradient-end) 100%);
+  color: var(--color-text-light);
+  border: none;
+  transition: transform 0.2s, opacity 0.3s ease;
+}
+
+.btn-gradient:disabled {
+  opacity: var(--opacity-disabled);
+  cursor: not-allowed;
+}
+
+.biography-text {
+  line-height: 1.8;
+  color: var(--color-text-muted);
+  white-space: pre-wrap;
+  margin-bottom: 1rem;
+  transition: color 0.3s ease;
+}
+
+.biography-display textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid var(--color-border);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 1rem;
+  resize: vertical;
+  line-height: 1.8;
+  background: var(--color-card-bg);
+  color: var(--color-text-primary);
+  transition: border-color 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+}
+
+.edit-buttons {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+/* Legacy tag styles for other components (ChatPanel, HistoryLog) that haven't been migrated to Bootstrap yet */
+.tag {
+  background: linear-gradient(135deg, var(--color-gradient-start) 0%, var(--color-gradient-end) 100%);
+  color: var(--color-text-light);
+  padding: 0.4rem 2rem 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  transition: opacity 0.3s ease;
+}
+
+.tag-ai {
+  background: linear-gradient(135deg, var(--color-gradient-start) 0%, var(--color-gradient-end) 100%);
+}
+
+.tag-user {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+[data-theme="dark"] .tag-user {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+}
+
+/* ChatPanel + HistoryLog migrated to Bootstrap components */
+
+/* ChatPanel - standard AI chat bubble styling (Bootstrap-first) */
+.chat-panel .chat-sender-label {
+  color: var(--color-text-tertiary);
+}
+
+.chat-panel .chat-bubble {
+  padding: 0.5rem 0.75rem;
+  border-radius: 1rem;
+  max-width: 85%;
+  color: var(--color-text-primary);
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.chat-panel .chat-bubble-user {
+  background: var(--color-chat-user);
+}
+
+.chat-panel .chat-bubble-assistant {
+  background: var(--color-chat-assistant);
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    flex: 1 1 auto;
+    max-height: none;
+  }
+
+  .right-panel {
+    max-width: 100%;
+  }
+}
+
+/* Biography List Styles - migrated to Bootstrap where possible */
+.biography-list {
+  background: var(--color-card-bg);
+  transition: background-color 0.3s ease;
+}
+
+.biography-list .card-header {
+  background: var(--color-card-bg);
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.biography-list .card-body {
+  padding: 1rem;
+}
+
+.biography-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s, border-color 0.3s ease, background-color 0.3s ease;
+}
+
+.biography-item:hover {
+  border-color: var(--color-primary);
+  background: var(--color-hover-bg);
+}
+
+.biography-item.active {
+  border-color: var(--color-primary);
+  background: var(--color-hover-bg);
+  box-shadow: var(--shadow-primary);
+}
+
+.biography-item-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.biography-item h3 {
+  color: var(--color-text-primary);
+  transition: color 0.3s ease;
+}
+
+.biography-item-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  transition: color 0.3s ease;
+}
+
+.biography-item-subtitle span + span {
+  margin-left: 0.5rem;
+}
+
+/* Skill preview pills use Bootstrap badges */
+
+.btn-delete {
+  padding: 0.35rem 0.55rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 1rem;
+}
+
+.btn-delete:hover {
+  transform: scale(1.05);
+}
+
+.delete-confirm {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--color-card-bg);
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: var(--shadow-lg);
+  z-index: 10;
+  min-width: 200px;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.delete-confirm p {
+  margin: 0 0 0.75rem 0;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  transition: color 0.3s ease;
+}
+
+.delete-confirm-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.delete-confirm .btn {
+  flex: 1;
+}
+
+/* Bootstrap button enhancements */
+.btn-primary:hover {
+  transform: translateY(-2px);
+}
+
+.btn-round {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  font-size: 26px;
+  font-weight: bold;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.no-biographies {
+  text-align: center;
+  padding: 2rem;
+  color: var(--color-text-secondary);
+  transition: color 0.3s ease;
+}
+
+/* Biography Display Updates */
+.biography-header {
+  margin-bottom: 1rem;
+}
+
+.biography-header h2 {
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.var(--color-primary);
+}
+
+.title-edit {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.title-edit input {
+  flex: 1;
+  padding: 0.5rem;
+  border: 2px solid var(--color-primary);
+  border-radius: 6px;
+  font-size: 1.3rem;
+  font-weight: 600;
+  background: var(--color-card-bg);
+  color: var(--color-text-primary);
+  transition: border-color 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Form groups now use Bootstrap form classes - minimal custom overrides */
+.form-group {
+  transition: color 0.3s ease;
+}
+
+/* Theme Toggle Styling */
+.theme-toggle {
+  position: absolute;
+  right: 2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.15);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  color: #ffffff;
+}
+
+.theme-toggle:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.theme-toggle:active {
+  transform: translateY(-50%) scale(0.98);
+}
+
+.theme-icon {
+  display: block;
+  width: 24px;
+  height: 24px;
+  color: #ffffff;
+  stroke: #ffffff;
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+}
+
+.theme-toggle:hover .theme-icon {
+  transform: rotate(20deg);
+}
+
+/* Regenerate Keywords Button */
+.btn-regenerate {
+  border-radius: 50% !important;
+  width: 30px;
+  height: 30px;
+  padding: 0 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-regenerate svg {
+  flex-shrink: 0;
+  color: inherit;
+}

@@ -1,0 +1,22 @@
+/* Custom styles for StructuredBiographyDisplay - Bootstrap overrides and enhancements */
+
+/* Smooth transitions for Bootstrap badges */
+.badge {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+/* Enhanced card styling */
+.card {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+}
+
+/* Custom achievement list styling */
+.list-unstyled li {
+  line-height: 1.6;
+}

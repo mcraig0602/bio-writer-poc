@@ -1,0 +1,20 @@
+{
+  "name": "biography-poc",
+  "version": "1.0.0",
+  "description": "Biography Generator POC - AI-powered biography generation with conversational refinement",
+  "scripts": {
+    "setup": "./setup.sh",
+    "dev": "./start-dev.sh",
+    "test": "npm run test:backend && npm run test:frontend",
+    "test:backend": "cd backend && npm test",
+    "test:frontend": "cd frontend && npm test",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "clean": "rm -rf backend/node_modules frontend/node_modules backend.log frontend.log"
+  },
+  "keywords": ["biography", "ai", "ollama", "react", "express", "mongodb"],
+  "author": "",
+  "license": "MIT"
+}
