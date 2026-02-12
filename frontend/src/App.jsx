@@ -272,7 +272,7 @@ function App() {
     setChatMessages(prev => [...prev, userMessage, assistantLoadingMessage]);
 
     try {
-      const data = await api.refineBiography(currentBiographyId, message);
+      const data = await api.sendChatMessage(currentBiographyId, message);
       setBiographyData(prev => ({ ...prev, ...data }));
       setRefreshTrigger(prev => prev + 1);
       // Reload messages from server (replaces optimistic messages with real ones)
@@ -375,7 +375,12 @@ function App() {
             {currentBiographyId && (
               <div className="col-12 col-lg-3">
                 <div className="right-panel">
-                  <ChatPanel onSendMessage={handleSendMessage} messages={chatMessages} loading={loading} />
+                  <ChatPanel
+                    onSendMessage={handleSendMessage}
+                    messages={chatMessages}
+                    loading={loading}
+                    pendingUpdate={biographyData?.pendingUpdate ?? null}
+                  />
                 </div>
               </div>
             )}

@@ -1,8 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
 
-function ChatPanel({ onSendMessage, messages, loading }) {
+function ChatPanel({ onSendMessage, messages, loading, pendingUpdate }) {
   const [message, setMessage] = useState('');
   const messagesEndRef = useRef(null);
+
+  const hasPendingUpdate = Boolean(
+    pendingUpdate &&
+      Array.isArray(pendingUpdate.explanations) &&
+      pendingUpdate.explanations.length > 0
+  );
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -14,6 +20,14 @@ function ChatPanel({ onSendMessage, messages, loading }) {
     if (!trimmed) return;
     onSendMessage(trimmed);
     setMessage('');
+  };
+
+  const handleConfirm = () => {
+    onSendMessage('yes');
+  };
+
+  const handleCancel = () => {
+    onSendMessage('no');
   };
 
   return (
@@ -93,6 +107,34 @@ function ChatPanel({ onSendMessage, messages, loading }) {
         </div>
 
         <div className="card-footer bg-body">
+          {hasPendingUpdate && (
+            <div className="mb-3">
+              <div className="small fw-semibold mb-2">Pending profile updates</div>
+              <ul className="small mb-2">
+                {pendingUpdate.explanations.map((line, idx) => (
+                  <li key={idx}>{line}</li>
+                ))}
+              </ul>
+              <div className="d-flex gap-2">
+                <button
+                  type="button"
+                  className="btn btn-sm btn-primary"
+                  onClick={handleConfirm}
+                  disabled={loading}
+                >
+                  Confirm
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-sm btn-outline-secondary"
+                  onClick={handleCancel}
+                  disabled={loading}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
           <form onSubmit={handleSubmit}>
             <div className="input-group">
               <input
@@ -100,7 +142,11 @@ function ChatPanel({ onSendMessage, messages, loading }) {
                 className="form-control"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                placeholder="Ask to refine (e.g., “Make it more formal”)"
+                placeholder={
+                  hasPendingUpdate
+                    ? 'Reply “yes” to apply or “no” to cancel (or use buttons)'
+                    : 'Ask to refine (e.g., “Make it more formal”)'
+                }
                 disabled={loading}
               />
               <button

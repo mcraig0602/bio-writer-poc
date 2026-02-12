@@ -122,6 +122,13 @@ class BiographyAPI {
   }
 
   // Legacy chat methods (may be deprecated in future)
+  async sendChatMessage(biographyId, message) {
+    const response = await axios.post(`${API_BASE_URL}/chat/${biographyId}/message`, {
+      message
+    });
+    return response.data;
+  }
+
   async refineBiography(biographyId, message) {
     const response = await axios.post(`${API_BASE_URL}/chat/${biographyId}/refine`, {
       message
